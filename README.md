@@ -7,10 +7,12 @@ The request to process the data has to be done manually, and it can take a while
 This takes the `messages` and `activity` directories as arguments, like:
 
 ```python
-from pathlib import Path
-from discord_data import events, activity
-print(messages(Path('./discord/october_2020/messages')))
-print(activity(Path('./discord/october_2020/activity')))
+>>> from pathlib import Path
+>>> from discord_data import parse_messages, parse_activity
+>>> next(parse_messages(Path('./discord/october_2020/messages')))
+Message(mid='747951969171275807', dt=datetime.datetime(2020, 8, 25, 22, 54, 5, 726000, tzinfo=datetime.timezone.utc), channel=Channel(cid='464051583559139340', name='general', server_name='Dream World'), content='<:NotLikeThis:237729324885606403>', attachments='')
+>>> next(parse_activity(Path('./discord/october_2020/activity')))
+{'event_type': 'ack_messages', 'event_id': '3Bj0l1ZK52hxN2gx==', 'event_source': 'client', 'user_id': '52292364546181229242', 'ip': '....', 'day': '655', 'chosen_locale': 'en-US', 'detected_locale': 'en-US', 'browser': 'Discord Client', 'city': '...', 'country_code': 'US', 'region_code': 'CA', 'time_zone': 'America/Los_Angeles', 'guild_id': '40922123327445216540', 'guild_size_total': '374', 'guild_member_num_roles': '9', 'guild_member_perms': '2616662909', 'guild_num_channels': '25', 'guild_num_text_channels': '19', 'guild_num_voice_channels': '6', 'guild_num_roles': '200', 'guild_is_vip': False, 'channel_id': '82785028073258646612', 'channel_type': '0', 'channel_size_total': '0', 'channel_member_perms': '104193088', 'channel_hidden': True, 'client_send_timestamp': '"2018-05-02T00:47:33.534Z"', 'client_track_timestamp': '"2018-05-02T00:47:33.459Z"', 'timestamp': '"2018-05-02T00:47:33.667Z"'}
 ```
 
 Created to be used as part of [HPI](https://github.com/seanbreckenridge/HPI)
