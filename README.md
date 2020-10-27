@@ -13,6 +13,8 @@ print(messages(Path('./discord/october_2020/messages')))
 print(activity(Path('./discord/october_2020/activity')))
 ```
 
+Created to be used as part of [HPI](https://github.com/seanbreckenridge/HPI)
+
 ### TODO:
 
 Once I actually have multiple data exports (so wont be able to update this for at least a month), write `merge.py` to merge multiple data exports into one.
