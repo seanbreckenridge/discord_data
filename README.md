@@ -6,15 +6,14 @@ The request to process the data has to be done manually, and it can take a while
 
 This takes the `messages` and `activity` directories as arguments, like:
 
-```
+```python
 from pathlib import Path
 from discord_data import events, activity
 print(messages(Path('./discord/october_2020/messages')))
 print(activity(Path('./discord/october_2020/activity')))
-
 ```
 
-# TODO:
+### TODO:
 
 Once I actually have multiple data exports (so wont be able to update this for at least a month), write `merge.py` to merge multiple data exports into one.
 
