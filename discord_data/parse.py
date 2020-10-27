@@ -47,7 +47,7 @@ def parse_messages(messages_dir: Path) -> Iterator[Message]:
         server_name: Optional[str] = None
         if "guild" in channel_json:
             server_name = channel_json["guild"]["name"]
-        channel_name: Optional[str] = index[channel_json["id"]]
+        channel_name: Optional[str] = index.get(channel_json["id"])
 
         channel_obj: Channel = Channel(
             cid=channel_json["id"], name=channel_name, server_name=server_name
@@ -75,5 +75,6 @@ def parse_activity(
     for activity_f in events_dir.rglob("*.json"):
         if logger is not None:
             logger.debug(f"Parsing {activity_f}...")
+        # not a 'json file', this has json objects, one per line
         for line in activity_f.open("r"):
             yield json.loads(line)
