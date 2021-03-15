@@ -8,10 +8,11 @@ from typing import Iterator, Optional, Dict, List, Any
 
 
 from .model import Message, Channel, Json
+from .common import expand_path, PathIsh
 
 
-def _get_self_user_id(export_root_dir: Path) -> str:
-    user_info_f: Path = export_root_dir / "account" / "user.json"
+def _get_self_user_id(export_root_dir: PathIsh) -> str:
+    user_info_f: Path = expand_path(export_root_dir) / "account" / "user.json"
     assert user_info_f.exists()
     user_json = json.loads(user_info_f.read_text())
     return str(user_json["id"])
@@ -20,24 +21,23 @@ def _get_self_user_id(export_root_dir: Path) -> str:
 def _parse_datetime(ds: str) -> datetime:
     try:
         return datetime.strptime(ds, r"%Y-%m-%d %H:%M:%S.%f%z")
-    except ValueError as ve:
+    except ValueError:
         return datetime.strptime(ds, r"%Y-%m-%d %H:%M:%S%z")
 
 
-def parse_messages(messages_dir: Path) -> Iterator[Message]:
+def parse_messages(messages_dir: PathIsh) -> Iterator[Message]:
+    pmsg_dir: Path = expand_path(messages_dir)
     # get user id
-    my_user: str = _get_self_user_id(messages_dir.parent)
+    my_user: str = _get_self_user_id(pmsg_dir.parent)
 
     # parse index
-    index_f = messages_dir / "index.json"
+    index_f = pmsg_dir / "index.json"
     assert index_f.exists(), f"Message index 'index.json' doesnt exist at {index_f}"
     index: Dict[str, Optional[str]] = json.loads(index_f.read_text())
 
     # get individual message directories
     msg_dirs: List[Path] = list(
-        filter(
-            lambda d: d.is_dir() and not d.name.startswith("."), messages_dir.iterdir()
-        )
+        filter(lambda d: d.is_dir() and not d.name.startswith("."), pmsg_dir.iterdir())
     )
     for msg_chan in msg_dirs:
 
@@ -72,7 +72,7 @@ def parse_messages(messages_dir: Path) -> Iterator[Message]:
 def parse_activity(
     events_dir: Path, logger: Optional[logging.Logger] = None
 ) -> Iterator[Json]:
-    for activity_f in events_dir.rglob("*.json"):
+    for activity_f in expand_path(events_dir).rglob("*.json"):
         if logger is not None:
             logger.debug(f"Parsing {activity_f}...")
         # not a 'json file', this has json objects, one per line
