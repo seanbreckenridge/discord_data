@@ -1,14 +1,16 @@
 import io
+from typing import List
 from setuptools import setup, find_packages
 
-requirements = []
+requirements: List[str] = []
 
 # Use the README.md content for the long description:
 with io.open("README.md", encoding="utf-8") as fo:
     long_description = fo.read()
 
+pkg = "discord_data"
 setup(
-    name="discord_data",
+    name=pkg,
     version="0.1.0",
     url="https://github.com/seanbreckenridge/discord_data",
     author="Sean Breckenridge",
@@ -17,7 +19,8 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     license="http://www.apache.org/licenses/LICENSE-2.0",
-    packages=find_packages(include=["discord_data"]),
+    packages=find_packages(include=[pkg]),
+    package_data={pkg: ["py.typed"]},
     install_requires=requirements,
     keywords="discord data",
     classifiers=[
