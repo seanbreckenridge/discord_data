@@ -18,16 +18,16 @@ def _get_self_user_id(export_root_dir: PathIsh) -> str:
     return str(user_json["id"])
 
 
+# timezone aware
 DT_FORMATS = [r"%Y-%m-%d %H:%M:%S.%f%z", r"%Y-%m-%d %H:%M:%S%z"]
 
 
 def _parse_message_datetime(ds: str) -> datetime:
-    v = None
     for dfmt in DT_FORMATS:
         try:
             return datetime.strptime(ds, dfmt)
-        except ValueError as ve:
-            v = ve
+        except ValueError:
+            pass
     # try as a fallback?
     return _parse_activity_datetime(ds)
 
