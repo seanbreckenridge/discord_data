@@ -2,12 +2,12 @@ import json
 import csv
 import logging
 
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterator, Optional, Dict, List, Any
 
 
-from .model import Message, Channel, Json
+from .model import Message, Channel, Json, Activity, RegionInfo, Fingerprint
 from .common import expand_path, PathIsh
 
 
@@ -18,17 +18,33 @@ def _get_self_user_id(export_root_dir: PathIsh) -> str:
     return str(user_json["id"])
 
 
-def _parse_datetime(ds: str) -> datetime:
+DT_FORMATS = [r"%Y-%m-%d %H:%M:%S.%f%z", r"%Y-%m-%d %H:%M:%S%z"]
+
+
+def _parse_message_datetime(ds: str) -> datetime:
+    v = None
+    for dfmt in DT_FORMATS:
+        try:
+            return datetime.strptime(ds, dfmt)
+        except ValueError as ve:
+            v = ve
+    # try as a fallback?
+    return _parse_activity_datetime(ds)
+
+
+def _parse_activity_datetime(ds: str) -> datetime:
     try:
-        return datetime.strptime(ds, r"%Y-%m-%d %H:%M:%S.%f%z")
-    except ValueError:
-        return datetime.strptime(ds, r"%Y-%m-%d %H:%M:%S%z")
+        d = ds.strip('"').rstrip("Z")
+        return datetime.astimezone(datetime.fromisoformat(d), tz=timezone.utc)
+    except ValueError as v:
+        print(f"Could not parse datetime with any of the known formats: {ds}")
+        raise v
 
 
 def parse_messages(messages_dir: PathIsh) -> Iterator[Message]:
     pmsg_dir: Path = expand_path(messages_dir)
     # get user id
-    my_user: str = _get_self_user_id(pmsg_dir.parent)
+    # my_user: str = _get_self_user_id(pmsg_dir.parent)
 
     # parse index
     index_f = pmsg_dir / "index.json"
@@ -50,7 +66,7 @@ def parse_messages(messages_dir: PathIsh) -> Iterator[Message]:
         channel_name: Optional[str] = index.get(channel_json["id"])
 
         channel_obj: Channel = Channel(
-            cid=channel_json["id"], name=channel_name, server_name=server_name
+            channel_id=channel_json["id"], name=channel_name, server_name=server_name
         )
 
         # read CSV file to get messages
@@ -61,17 +77,50 @@ def parse_messages(messages_dir: PathIsh) -> Iterator[Message]:
             next(csv_reader)  # ignore header row
             for row in csv_reader:
                 yield Message(
-                    mid=row[0],
-                    dt=_parse_datetime(row[1]),
+                    message_id=row[0],
+                    timestamp=_parse_message_datetime(row[1]),
                     channel=channel_obj,
                     content=row[2],
                     attachments=row[3],
                 )
 
 
+def _parse_activity_blob(blob: Json) -> Activity:
+    reginfo = None
+    try:
+        reginfo = RegionInfo(
+            city=blob["city"],
+            country_code=blob["country_code"],
+            region_code=blob["region_code"],
+            time_zone=blob["time_zone"],
+        )
+    except KeyError:
+        pass
+    return Activity(
+        event_id=blob["event_id"],
+        event_type=blob["event_type"],
+        region_info=reginfo,
+        fingerprint=Fingerprint.make(blob),
+        timestamp=_parse_activity_datetime(blob["timestamp"]),
+    )
+
+
 def parse_activity(
     events_dir: Path, logger: Optional[logging.Logger] = None
+) -> Iterator[Activity]:
+    """
+    Return useful fields from the JSON blobs
+    """
+    yield from map(_parse_activity_blob, parse_raw_activity(events_dir, logger))
+
+
+def parse_raw_activity(
+    events_dir: Path, logger: Optional[logging.Logger] = None
 ) -> Iterator[Json]:
+    """
+    Return all the objects from the activity directory, as
+    JSON blobs
+    """
     for activity_f in expand_path(events_dir).rglob("*.json"):
         if logger is not None:
             logger.debug(f"Parsing {activity_f}...")

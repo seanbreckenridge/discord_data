@@ -14,7 +14,19 @@ This takes the `messages` and `activity` directories as arguments, like:
 
 `Message(mid='747951969171275807', dt=datetime.datetime(2020, 8, 25, 22, 54, 5, 726000, tzinfo=datetime.timezone.utc), channel=Channel(cid='464051583559139340', name='general', server_name='Dream World'), content='<:NotLikeThis:237729324885606403>', attachments='')`
 
-`{'event_type': 'ack_messages', 'event_id': '3Bj0l1ZK52hxN2gx==', 'event_source': 'client', 'user_id': '52292364546181229242', 'ip': '....', 'day': '655', 'chosen_locale': 'en-US', 'detected_locale': 'en-US', 'browser': 'Discord Client', 'city': '...', 'country_code': 'US', 'region_code': 'CA', 'time_zone': 'America/Los_Angeles', 'guild_id': '40922123327445216540', 'guild_size_total': '374', 'guild_member_num_roles': '9', 'guild_member_perms': '2616662909', 'guild_num_channels': '25', 'guild_num_text_channels': '19', 'guild_num_voice_channels': '6', 'guild_num_roles': '200', 'guild_is_vip': False, 'channel_id': '82785028073258646612', 'channel_type': '0', 'channel_size_total': '0', 'channel_member_perms': '104193088', 'channel_hidden': True, 'client_send_timestamp': '"2018-05-02T00:47:33.534Z"', 'client_track_timestamp': '"2018-05-02T00:47:33.459Z"', 'timestamp': '"2018-05-02T00:47:33.667Z"'}`
+`Activity(event_id='AQICfXBljgG+pYXCTRrwzy6MqgAAAAA=', event_type='start_listening', region_info=RegionInfo(city='cityNameHere', country_code='US', region_code='CA', time_zone='America/Los_Angeles'), fingerprint=Fingerprint(os='Mac OS X', os_version='16.1.0', browser='Discord Client', ip='216.58.195.78', isp=None, device=None, distro=None), timestamp=datetime.datetime(2016, 11, 26, 7, 8, 47))`
+
+---
+
+Each of these returns a `Generator`, so they only read from the (giant) JSON files as needed. If you want to process all the data, you can call `list` on it to consume the whole generator:
+
+```python
+from discord_data import parse_messages, parse_activity
+msg = list(parse_messages("./discord/october_2020/messages"))
+acts = list(parse_activity("./discord/october_2020/activity"))
+```
+
+The raw activity data includes lots of additional fields, this only includes items I thought would be useful. If you want to parse the JSON blobs yourself, you do so by using `from discord_data import parse_raw_activity`
 
 Created to be used as part of [`HPI`](https://github.com/seanbreckenridge/HPI)
 
