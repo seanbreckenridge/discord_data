@@ -106,7 +106,7 @@ def _parse_activity_blob(blob: Json) -> Activity:
 
 
 def parse_activity(
-    events_dir: Path, logger: Optional[logging.Logger] = None
+    events_dir: PathIsh, logger: Optional[logging.Logger] = None
 ) -> Iterator[Activity]:
     """
     Return useful fields from the JSON blobs
@@ -115,7 +115,7 @@ def parse_activity(
 
 
 def parse_raw_activity(
-    events_dir: Path, logger: Optional[logging.Logger] = None
+    events_dir: PathIsh, logger: Optional[logging.Logger] = None
 ) -> Iterator[Json]:
     """
     Return all the objects from the activity directory, as

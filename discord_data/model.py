@@ -31,6 +31,7 @@ def _strip_quotes(o: Optional[str]) -> Optional[str]:
         return o.strip('"')
     return o
 
+
 class Fingerprint(NamedTuple):
     os: Optional[str]
     os_version: Optional[str]
