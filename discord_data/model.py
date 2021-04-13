@@ -5,14 +5,19 @@ from typing import NamedTuple, Optional, Dict, Any
 Json = Dict[str, Any]
 
 
+class Server(NamedTuple):
+    server_id: int
+    server_name: str
+
+
 class Channel(NamedTuple):
-    channel_id: str
+    channel_id: int
     name: Optional[str]
-    server_name: Optional[str]  # if this is a guild (server), the server name
+    server: Optional[Server]  # if this is a guild (server), the server id/name
 
 
 class Message(NamedTuple):
-    message_id: str
+    message_id: int
     timestamp: datetime
     channel: Channel
     content: str

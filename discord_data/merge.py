@@ -76,10 +76,10 @@ def merge_messages(
     export_dir: Optional[PathIsh] = None,
     paths: Optional[Sequence[PathIsh]] = None,
 ) -> Iterator[Message]:
-    emitted: Set[str] = set()
+    emitted: Set[int] = set()
     for p in _list_exports("messages", export_dir, paths):
         for msg in parse_messages(p):
-            key: str = msg.message_id
+            key: int = msg.message_id
             if key in emitted:
                 continue
             yield msg

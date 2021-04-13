@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Iterator, Optional, Dict, List, Any
 
 
-from .model import Message, Channel, Json, Activity, RegionInfo, Fingerprint
+from .model import Message, Channel, Json, Activity, RegionInfo, Fingerprint, Server
 from .common import expand_path, PathIsh
 
 
@@ -57,16 +57,26 @@ def parse_messages(messages_dir: PathIsh) -> Iterator[Message]:
     )
     for msg_chan in msg_dirs:
 
-        channel_json: Dict[str, Any] = json.loads(
-            (msg_chan / "channel.json").read_text()
-        )
-        server_name: Optional[str] = None
+        # chanel.json has some metadata about the channel/server
+        channel_info_f: Path = msg_chan / "channel.json"
+        channel_json: Dict[str, Any] = json.loads(channel_info_f.read_text())
+
+        # optionally, find server information
+        server_info: Optional[Server] = None
+
+        # if the channel.json included guild (server) info
         if "guild" in channel_json:
-            server_name = channel_json["guild"]["name"]
+            server_info = Server(
+                server_id=int(channel_json["guild"]["id"]),
+                server_name=channel_json["guild"]["name"],
+            )
+
         channel_name: Optional[str] = index.get(channel_json["id"])
 
         channel_obj: Channel = Channel(
-            channel_id=channel_json["id"], name=channel_name, server_name=server_name
+            channel_id=int(channel_json["id"]),
+            name=channel_name,
+            server=server_info,
         )
 
         # read CSV file to get messages
@@ -77,7 +87,7 @@ def parse_messages(messages_dir: PathIsh) -> Iterator[Message]:
             next(csv_reader)  # ignore header row
             for row in csv_reader:
                 yield Message(
-                    message_id=row[0],
+                    message_id=int(row[0]),
                     timestamp=_parse_message_datetime(row[1]),
                     channel=channel_obj,
                     content=row[2],
