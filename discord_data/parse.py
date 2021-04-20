@@ -68,7 +68,7 @@ def parse_messages(messages_dir: PathIsh) -> Iterator[Message]:
         if "guild" in channel_json:
             server_info = Server(
                 server_id=int(channel_json["guild"]["id"]),
-                server_name=channel_json["guild"]["name"],
+                name=channel_json["guild"]["name"],
             )
 
         channel_name: Optional[str] = index.get(channel_json["id"])

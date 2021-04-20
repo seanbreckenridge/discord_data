@@ -1,12 +1,11 @@
 import warnings
 import logging
 from pathlib import Path
-from typing import Set, Tuple, Optional, Iterator, List, Sequence
+from typing import Set, Optional, Iterator, List, Sequence
 
 from .model import Json, Message, Activity
 from .common import PathIsh, expand_path
 from .parse import (
-    parse_activity,
     parse_messages,
     parse_raw_activity,
     _parse_activity_blob,

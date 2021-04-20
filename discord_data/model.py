@@ -8,7 +8,7 @@ Json = Dict[str, Any]
 
 class Server(NamedTuple):
     server_id: int
-    server_name: str
+    name: str
 
 
 class Channel(NamedTuple):
@@ -24,8 +24,10 @@ class Channel(NamedTuple):
         if self.server is None:
             return self.name or f"message ({self.channel_id})"
         else:
-            cname = " - #{self.name}" if self.name is not None else ""
-            return self.server.server_name + cname
+            if self.name is None:
+                return f"{self.server.name} - {self.name}"
+            else:
+                return self.server.name
 
 
 class Message(NamedTuple):
