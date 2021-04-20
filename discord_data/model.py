@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import NamedTuple, Optional, Dict, Any
 
+URL_BASE = "https://discord.com"
 
 Json = Dict[str, Any]
 
@@ -15,6 +16,17 @@ class Channel(NamedTuple):
     name: Optional[str]
     server: Optional[Server]  # if this is a guild (server), the server id/name
 
+    @property
+    def description(self) -> str:
+        """
+        small text description of where this message was found
+        """
+        if self.server is None:
+            return self.name or f"message ({self.channel_id})"
+        else:
+            cname = " - #{self.name}" if self.name is not None else ""
+            return self.server.server_name + cname
+
 
 class Message(NamedTuple):
     message_id: int
@@ -22,6 +34,20 @@ class Message(NamedTuple):
     channel: Channel
     content: str
     attachments: str
+
+    @property
+    def link(self) -> str:
+        """
+        create a link to this message
+        """
+        cid = self.channel.channel_id
+        server = self.channel.server
+        # probably a PM?
+        if server is None:
+            return f"{URL_BASE}/channels/@me/{cid}/{self.message_id}"
+        else:
+            # in a server
+            return f"{URL_BASE}/channels/{server.server_id}/{cid}/{self.message_id}"
 
 
 class RegionInfo(NamedTuple):
