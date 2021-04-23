@@ -22,7 +22,7 @@ class Channel(NamedTuple):
         small text description of where this message was found
         """
         if self.server is None:
-            return self.name or f"message ({self.channel_id})"
+            return self.name or f"channel ({self.channel_id})"
         else:
             if self.name is None:
                 return f"{self.server.name} - {self.name}"
