@@ -38,7 +38,7 @@ The raw activity data includes lots of additional fields, this only includes ite
 
 ## Merge Exports
 
-It seems that over time, discord will slowly get rid of old messages. (e.g. between the October and March exports below, 320 messages are missing from March that were included in October):
+Exports seem to be complete, but when a server is deleted, all messages in that server are deleted permanently, so I'd recommend periodically doing an export to make sure you don't lose anything.
 
 I recommend you organize your exports like this:
 
