@@ -6,11 +6,9 @@ The request to process the data has to be done manually, and it can take a while
 
 ### Install:
 
-`python3.7+`
+Requires `python3.7+`. To install with pip, run:
 
-To install with pip, run:
-
-    pip install 'git+https://github.com/seanbreckenridge/discord_data'
+    pip install discord_data
 
 ## Single Export
 
