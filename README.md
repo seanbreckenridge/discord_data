@@ -6,7 +6,7 @@ The request to process the data has to be done manually, and it can take a while
 
 ### Install:
 
-`python3.6+`
+`python3.7+`
 
 To install with pip, run:
 
