@@ -35,7 +35,8 @@ def _parse_message_datetime(ds: str) -> datetime:
 def _parse_activity_datetime(ds: str) -> datetime:
     try:
         d = ds.strip('"').rstrip("Z")
-        return datetime.astimezone(datetime.fromisoformat(d), tz=timezone.utc)
+        naive = datetime.fromisoformat(d)
+        return naive.replace(tzinfo=timezone.utc)
     except ValueError as v:
         print(f"Could not parse datetime with any of the known formats: {ds}")
         raise v
