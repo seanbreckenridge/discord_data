@@ -4,7 +4,7 @@ import logging
 
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterator, Optional, Dict, List, Any
+from typing import Iterator, Optional, Dict, List, Any, Union
 
 
 from .model import Message, Channel, Json, Activity, RegionInfo, Fingerprint, Server
@@ -107,7 +107,7 @@ def _parse_activity_blob(blob: Json) -> Activity:
         )
     except KeyError:
         pass
-    json_data: Dict[str, str | None] = {}
+    json_data: Dict[str, Union[str, None]] = {}
     event_type = blob["event_type"]
     if event_type == "launch_game":
         json_data["game"] = blob.get("game")
