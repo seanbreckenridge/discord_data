@@ -1,7 +1,7 @@
 import json
 
 from datetime import datetime
-from typing import NamedTuple, Optional, Dict, Any
+from typing import NamedTuple, Optional, Dict, Any, cast
 
 URL_BASE = "https://discord.com"
 
@@ -96,4 +96,4 @@ class Activity(NamedTuple):
         if self.json_data_str is None:
             return {}
         else:
-            return json.loads(self.json_data_str)
+            return cast(Dict[str, str], json.loads(self.json_data_str))
