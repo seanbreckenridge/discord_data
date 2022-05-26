@@ -34,6 +34,14 @@ acts = list(parse_activity("./discord/october_2020/activity"))
 
 The raw activity data includes lots of additional fields, this only includes items I thought would be useful. If you want to parse the JSON blobs yourself, you do so by using `from discord_data import parse_raw_activity`
 
+If you just want to quickly load the parsed data into a REPL:
+
+```shell
+python3 -m discord_data ./discord/october_2020
+```
+
+That drops you into a python shell with access to `activity` and `messages` variables which include the parsed data
+
 ## Merge Exports
 
 Exports seem to be complete, but when a server or channel is deleted, all messages in that channel are deleted permanently, so I'd recommend periodically doing an export to make sure you don't lose anything.
