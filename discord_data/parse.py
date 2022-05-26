@@ -11,7 +11,7 @@ from .model import Message, Channel, Json, Activity, RegionInfo, Fingerprint, Se
 from .common import expand_path, PathIsh
 
 
-def _get_self_user_id(export_root_dir: PathIsh) -> str:
+def get_self_user_id(export_root_dir: PathIsh) -> str:
     user_info_f: Path = expand_path(export_root_dir) / "account" / "user.json"
     assert user_info_f.exists()
     user_json = json.loads(user_info_f.read_text())
@@ -107,12 +107,25 @@ def _parse_activity_blob(blob: Json) -> Activity:
         )
     except KeyError:
         pass
+    json_data: Dict[str, str | None] = {}
+    event_type = blob["event_type"]
+    if event_type == "launch_game":
+        json_data["game"] = blob.get("game")
+    elif event_type == "add_reaction":
+        json_data["message_id"] = blob.get("message_id")
+        json_data["emoji_name"] = blob.get("emoji_name")
+    elif event_type == "game_opened":
+        json_data["game"] = blob.get("game")
+    elif event_type == "application_opened":
+        json_data["application"] = blob.get("application_name")
+    json_clean: Dict[str, str] = {k: v for k, v in json_data.items() if v is not None}
     return Activity(
         event_id=blob["event_id"],
-        event_type=blob["event_type"],
+        event_type=event_type,
         region_info=reginfo,
         fingerprint=Fingerprint.make(blob),
         timestamp=_parse_activity_datetime(blob["timestamp"]),
+        json_data_str=json.dumps(json_clean) if json_clean else None,
     )
 
 

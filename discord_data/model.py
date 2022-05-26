@@ -1,3 +1,5 @@
+import json
+
 from datetime import datetime
 from typing import NamedTuple, Optional, Dict, Any
 
@@ -69,6 +71,7 @@ class Fingerprint(NamedTuple):
     os: Optional[str]
     os_version: Optional[str]
     browser: Optional[str]
+    browser_user_agent: Optional[str]
     ip: Optional[str]
     isp: Optional[str]
     device: Optional[str]
@@ -86,3 +89,11 @@ class Activity(NamedTuple):
     # additional data that doesn't conform to this spec
     fingerprint: Fingerprint
     timestamp: datetime
+    json_data_str: Optional[str]
+
+    @property
+    def json_data(self) -> Dict[str, str]:
+        if self.json_data_str is None:
+            return {}
+        else:
+            return json.loads(self.json_data_str)
