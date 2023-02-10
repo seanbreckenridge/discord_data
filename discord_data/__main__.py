@@ -43,7 +43,7 @@ def main(data_directory: str, interactive: bool) -> None:
         click.echo(
             f"Use the {click.style('messages', 'green')} and {click.style('activity', 'green')} variables to interact with the parsed data"
         )
-        IPython.embed()
+        IPython.embed()  # type: ignore[no-untyped-call]
     else:
         click.echo(f"Message count: {len(messages)}")
         click.echo(f"Activity count: {len(activity)}")
