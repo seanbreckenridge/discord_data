@@ -57,7 +57,6 @@ def parse_messages(messages_dir: PathIsh) -> Iterator[Message]:
         filter(lambda d: d.is_dir() and not d.name.startswith("."), pmsg_dir.iterdir())
     )
     for msg_chan in msg_dirs:
-
         # chanel.json has some metadata about the channel/server
         channel_info_f: Path = msg_chan / "channel.json"
         channel_json: Dict[str, Any] = json.loads(channel_info_f.read_text())
