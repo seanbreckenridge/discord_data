@@ -134,7 +134,13 @@ def parse_activity(
     """
     Return useful fields from the JSON blobs
     """
-    yield from map(_parse_activity_blob, parse_raw_activity(events_dir, logger))
+    for x in parse_raw_activity(events_dir, logger):
+        if x.get('predicted_gender') is not None or x.get('predicted_age') is not None:
+            # newer (2023ish) export have a few (2-3) of these events
+            # they don't have any useful info apart from some probabilites of user's gender/age
+            # don't have any event_id or event_type either so we can't really parse them
+            continue
+        yield _parse_activity_blob(x)
 
 
 def parse_raw_activity(
