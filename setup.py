@@ -13,7 +13,7 @@ pkg = "discord_data"
 def main() -> None:
     setup(
         name=pkg,
-        version="0.1.1",
+        version="0.1.2",
         url="https://github.com/seanbreckenridge/discord_data",
         author="Sean Breckenridge",
         author_email="seanbrecke@gmail.com",
