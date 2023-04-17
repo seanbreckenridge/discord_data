@@ -77,4 +77,15 @@ list(merge_messages(export_dir="./discord"))`
 list(merge_messages(paths=["./discord/march_2021/messages", "./discord/october_2020/messages"]))
 ```
 
+If the format for the discord export changes, the parse/merge functions will still work, they just might yield errors as part of their output. To ignore those, you can do:
+
+```python
+for msg in merge_messages(export_dir="./discord"):
+    if isinstance(msg, Exception):
+        logger.warning(msg)
+        continue
+    # do something with msg
+    print(msg.content)
+```
+
 Created to be used as part of [`HPI`](https://github.com/seanbreckenridge/HPI)
