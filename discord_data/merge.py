@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Set, Optional, Iterator, List, Sequence
 
 from .model import Json, Message, Activity
+from .error import Res
 from .common import PathIsh, expand_path
 from .parse import (
     parse_messages,
@@ -63,21 +64,25 @@ def merge_activity(
     export_dir: Optional[PathIsh] = None,
     paths: Optional[Sequence[PathIsh]] = None,
     logger: Optional[logging.Logger] = None,
-) -> Iterator[Activity]:
-    yield from map(
-        _parse_activity_blob,
-        merge_raw_activity(export_dir=export_dir, paths=paths, logger=logger),
-    )
+) -> Iterator[Res[Activity]]:
+    for rawact in merge_raw_activity(export_dir=export_dir, paths=paths, logger=logger):
+        try:
+            yield _parse_activity_blob(rawact)
+        except Exception as e:
+            yield e
 
 
 def merge_messages(
     *,
     export_dir: Optional[PathIsh] = None,
     paths: Optional[Sequence[PathIsh]] = None,
-) -> Iterator[Message]:
+) -> Iterator[Res[Message]]:
     emitted: Set[int] = set()
     for p in _list_exports("messages", export_dir, paths):
         for msg in parse_messages(p):
+            if isinstance(msg, Exception):
+                yield msg
+                continue
             key: int = msg.message_id
             if key in emitted:
                 continue

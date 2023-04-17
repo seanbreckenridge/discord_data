@@ -9,9 +9,10 @@ from typing import Iterator, Optional, Dict, List, Any, Union
 
 from .model import Message, Channel, Json, Activity, RegionInfo, Fingerprint, Server
 from .common import expand_path, PathIsh
+from .error import Res
 
 
-def get_self_user_id(export_root_dir: PathIsh) -> str:
+def _get_self_user_id(export_root_dir: PathIsh) -> str:
     user_info_f: Path = expand_path(export_root_dir) / "account" / "user.json"
     assert user_info_f.exists()
     user_json = json.loads(user_info_f.read_text())
@@ -42,14 +43,15 @@ def _parse_activity_datetime(ds: str) -> datetime:
         raise v
 
 
-def parse_messages(messages_dir: PathIsh) -> Iterator[Message]:
+def parse_messages(messages_dir: PathIsh) -> Iterator[Res[Message]]:
     pmsg_dir: Path = expand_path(messages_dir)
     # get user id
-    # my_user: str = _get_self_user_id(pmsg_dir.parent)
 
     # parse index
     index_f = pmsg_dir / "index.json"
-    assert index_f.exists(), f"Message index 'index.json' doesnt exist at {index_f}"
+    if not index_f.exists():
+        yield RuntimeError(f"Message index 'index.json' doesnt exist at {index_f}")
+        return
     index: Dict[str, Optional[str]] = json.loads(index_f.read_text())
 
     # get individual message directories
@@ -59,13 +61,22 @@ def parse_messages(messages_dir: PathIsh) -> Iterator[Message]:
     for msg_chan in msg_dirs:
         # chanel.json has some metadata about the channel/server
         channel_info_f: Path = msg_chan / "channel.json"
+        if not channel_info_f.exists():
+            yield RuntimeError(
+                f"Channel info 'channel.json' doesnt exist at {channel_info_f}"
+            )
+            continue
         channel_json: Dict[str, Any] = json.loads(channel_info_f.read_text())
 
         # optionally, find server information
         server_info: Optional[Server] = None
 
         # if the channel.json included guild (server) info
-        if "guild" in channel_json:
+        if (
+            "guild" in channel_json
+            and "id" in channel_json["guild"]
+            and "name" in channel_json["guild"]
+        ):
             server_info = Server(
                 server_id=int(channel_json["guild"]["id"]),
                 name=channel_json["guild"]["name"],
@@ -73,6 +84,9 @@ def parse_messages(messages_dir: PathIsh) -> Iterator[Message]:
 
         channel_name: Optional[str] = index.get(channel_json["id"])
 
+        if "id" not in channel_json:
+            yield RuntimeError(f"Channel id not found in {channel_info_f}")
+            continue
         channel_obj: Channel = Channel(
             channel_id=int(channel_json["id"]),
             name=channel_name,
@@ -86,13 +100,16 @@ def parse_messages(messages_dir: PathIsh) -> Iterator[Message]:
             )
             next(csv_reader)  # ignore header row
             for row in csv_reader:
-                yield Message(
-                    message_id=int(row[0]),
-                    timestamp=_parse_message_datetime(row[1]),
-                    channel=channel_obj,
-                    content=row[2],
-                    attachments=row[3],
-                )
+                try:
+                    yield Message(
+                        message_id=int(row[0]),
+                        timestamp=_parse_message_datetime(row[1]),
+                        channel=channel_obj,
+                        content=row[2],
+                        attachments=row[3],
+                    )
+                except Exception as e:
+                    yield e
 
 
 def _parse_activity_blob(blob: Json) -> Activity:
@@ -130,17 +147,20 @@ def _parse_activity_blob(blob: Json) -> Activity:
 
 def parse_activity(
     events_dir: PathIsh, logger: Optional[logging.Logger] = None
-) -> Iterator[Activity]:
+) -> Iterator[Res[Activity]]:
     """
     Return useful fields from the JSON blobs
     """
     for x in parse_raw_activity(events_dir, logger):
-        if x.get('predicted_gender') is not None or x.get('predicted_age') is not None:
+        if x.get("predicted_gender") is not None or x.get("predicted_age") is not None:
             # newer (2023ish) export have a few (2-3) of these events
             # they don't have any useful info apart from some probabilites of user's gender/age
             # don't have any event_id or event_type either so we can't really parse them
             continue
-        yield _parse_activity_blob(x)
+        try:
+            yield _parse_activity_blob(x)
+        except Exception as e:
+            yield e
 
 
 def parse_raw_activity(
