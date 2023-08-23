@@ -154,7 +154,7 @@ def parse_activity(
     for x in parse_raw_activity(events_dir, logger):
         if x.get("predicted_gender") is not None or x.get("predicted_age") is not None:
             # newer (2023ish) export have a few (2-3) of these events
-            # they don't have any useful info apart from some probabilites of user's gender/age
+            # they don't have any useful info apart from some probabilities of user's gender/age
             # don't have any event_id or event_type either so we can't really parse them
             continue
         try:
