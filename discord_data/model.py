@@ -97,3 +97,15 @@ class Activity(NamedTuple):
             return {}
         else:
             return cast(Dict[str, str], json.loads(self.json_data_str))
+
+
+def _default(o: Any) -> Any:
+    if isinstance(o, datetime):
+        return o.isoformat()
+    raise TypeError(f"Object of type {o.__class__.__name__} is not JSON serializable")
+
+
+def serialize(obj: Any) -> str:
+    import simplejson  # type: ignore[import]
+
+    return simplejson.dumps(obj, default=_default, namedtuple_as_object=True)

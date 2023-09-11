@@ -6,7 +6,7 @@ The request to process the data has to be done manually, and it can take a while
 
 ### Install:
 
-Requires `python3.7+`. To install with pip, run:
+Requires `python3.8+`. To install with pip, run:
 
     pip install discord_data
 
@@ -41,6 +41,12 @@ python3 -m discord_data ./discord/october_2020
 ```
 
 That drops you into a python shell with access to `activity` and `messages` variables which include the parsed data
+
+Or, to dump it to JSON:
+
+```
+python3 -m discord_data ./discord/october_2020 -o json > discord_data.json
+```
 
 ## Merge Exports
 

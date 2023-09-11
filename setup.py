@@ -24,17 +24,17 @@ def main() -> None:
         install_requires=reqs,
         packages=find_packages(include=[pkg]),
         package_data={pkg: ["py.typed"]},
-        python_requires=">=3.7",
+        python_requires=">=3.8",
         keywords="discord data",
         entry_points={"console_scripts": ["discord_data = discord_data.__main__:main"]},
         classifiers=[
             "License :: OSI Approved :: Apache Software License",
             "Programming Language :: Python",
             "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",
             "Programming Language :: Python :: 3.9",
             "Programming Language :: Python :: 3.10",
+            "Programming Language :: Python :: 3.11",
         ],
     )
 
