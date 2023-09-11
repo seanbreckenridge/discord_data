@@ -106,6 +106,6 @@ def _default(o: Any) -> Any:
 
 
 def serialize(obj: Any) -> str:
-    import simplejson  # type: ignore[import]
+    import simplejson
 
     return cast(str, simplejson.dumps(obj, default=_default, namedtuple_as_object=True))

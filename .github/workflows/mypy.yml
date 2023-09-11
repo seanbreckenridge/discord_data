@@ -26,4 +26,4 @@ jobs:
           pip install '.'
       - name: Run mypy
         run: |
-          mypy -p discord_data
+          mypy --install-types --non-interactive -p discord_data
