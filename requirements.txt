@@ -1,2 +1,1 @@
 click>=8.1.0
-IPython>=7
