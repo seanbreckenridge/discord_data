@@ -63,7 +63,7 @@ def main(data_directory: str, interactive: bool, output: str) -> None:
             else:
                 IPython.embed()  # type: ignore[no-untyped-call]
         else:
-            # backwards compatability, keep here
+            # backwards compatibility, keep here
             click.echo(f"Message count: {len(messages)}")
             click.echo(f"Activity count: {len(activity)}")
     elif output == "json":

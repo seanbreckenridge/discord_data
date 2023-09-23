@@ -50,7 +50,7 @@ def parse_messages(messages_dir: PathIsh) -> Iterator[Res[Message]]:
     # parse index
     index_f = pmsg_dir / "index.json"
     if not index_f.exists():
-        yield RuntimeError(f"Message index 'index.json' doesnt exist at {index_f}")
+        yield RuntimeError(f"Message index 'index.json' doesn't exist at {index_f}")
         return
     index: Dict[str, Optional[str]] = json.loads(index_f.read_text())
 
@@ -59,11 +59,11 @@ def parse_messages(messages_dir: PathIsh) -> Iterator[Res[Message]]:
         filter(lambda d: d.is_dir() and not d.name.startswith("."), pmsg_dir.iterdir())
     )
     for msg_chan in msg_dirs:
-        # chanel.json has some metadata about the channel/server
+        # channel.json has some metadata about the channel/server
         channel_info_f: Path = msg_chan / "channel.json"
         if not channel_info_f.exists():
             yield RuntimeError(
-                f"Channel info 'channel.json' doesnt exist at {channel_info_f}"
+                f"Channel info 'channel.json' doesn't exist at {channel_info_f}"
             )
             continue
         channel_json: Dict[str, Any] = json.loads(channel_info_f.read_text())
