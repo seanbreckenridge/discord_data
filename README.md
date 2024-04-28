@@ -4,6 +4,8 @@ Library to parse information from the discord data export, see more info [here](
 
 The request to process the data has to be done manually, and it can take a while for them to deliver it to you.
 
+This supports both the old CSV and new JSON formats for messages.
+
 ### Install:
 
 Requires `python3.8+`. To install with pip, run:
