@@ -93,20 +93,44 @@ def parse_messages(messages_dir: PathIsh) -> Iterator[Res[Message]]:
             server=server_info,
         )
 
-        # read CSV file to get messages
-        with (msg_chan / "messages.csv").open("r", encoding="utf-8", newline="") as f:
-            csv_reader = csv.reader(
-                f, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
-            )
-            next(csv_reader)  # ignore header row
-            for row in csv_reader:
+        channel_csv = msg_chan / "messages.csv"
+        if channel_csv.exists():
+            # read CSV file to get messages
+            with (msg_chan / "messages.csv").open(
+                "r", encoding="utf-8", newline=""
+            ) as f:
+                csv_reader = csv.reader(
+                    f, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
+                )
+                next(csv_reader)  # ignore header row
+                for row in csv_reader:
+                    try:
+                        yield Message(
+                            message_id=int(row[0]),
+                            timestamp=_parse_message_datetime(row[1]),
+                            channel=channel_obj,
+                            content=row[2],
+                            attachments=row[3],
+                        )
+                    except Exception as e:
+                        yield e
+        else:
+            json_file = msg_chan / "messages.json"
+            if not json_file.exists():
+                yield RuntimeError(f"No messages file found in in {msg_chan}")
+                continue
+
+            # read JSON file to get messages
+            messages_json: List[Dict[str, Any]] = json.loads(json_file.read_text())
+
+            for msg in messages_json:
                 try:
                     yield Message(
-                        message_id=int(row[0]),
-                        timestamp=_parse_message_datetime(row[1]),
+                        message_id=int(msg["ID"]),
+                        timestamp=_parse_message_datetime(msg["Timestamp"]),
                         channel=channel_obj,
-                        content=row[2],
-                        attachments=row[3],
+                        content=msg["Contents"],
+                        attachments=msg.get("Attachments", ""),
                     )
                 except Exception as e:
                     yield e
