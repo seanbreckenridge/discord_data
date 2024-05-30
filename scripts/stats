@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+
+"""
+Inspired by https://discordpackage.com/
+Uses my HPI package https://github.com/seanbreckenridge/HPI
+"""
+
+from collections import Counter
+from datetime import datetime
+
+import click
+import my.discord.data_export as disc
+from matplotlib import pyplot as plt
+
+
+@click.group()
+def main() -> None:
+    pass
+
+
+def _timestamps() -> list[datetime]:
+    dts = [d.timestamp.astimezone() for d in disc.messages()]
+    dts.sort()
+    return dts
+
+
+def _plot(d: dict, title: str) -> None:
+    click.echo("Generating plot...")
+    plt.bar(d.keys(), d.values())  # type: ignore
+    plt.title(title)
+    click.echo("Showing...")
+    plt.show()
+
+
+@main.command()
+def hourly() -> None:
+    cc = dict(Counter([ts.hour for ts in _timestamps()]))
+    _plot(cc, title="Active Hours")
+
+
+@main.command()
+def yearly() -> None:
+    cc = dict(Counter([ts.year for ts in _timestamps()]))
+    _plot(cc, title="Active Years")
+
+
+@main.command()
+def averages() -> None:
+    ts = _timestamps()
+    assert len(ts) > 1
+
+    first_message = ts[0]
+    last_message = ts[-1]
+
+    using_discord_for = (last_message - first_message).days
+    msgs_per_day = len(ts) / using_discord_for
+
+    def r(d: float) -> str:
+        return str(round(d, 3))
+
+    breakpoint()
+
+    # You send an average of 255 messages per day, 1790 messages per week, 7671 messages per month, and 93338 messages per year.
+    print(
+        f"You send an average of {r(msgs_per_day)} messages per day, "
+        f"{r(msgs_per_day * 7)} messages per week, "
+        f"{r(msgs_per_day * 30)} messages per month, "
+        f"{r(msgs_per_day * 365)} messages per year."
+    )
+
+
+if __name__ == "__main__":
+    main(prog_name="stats")
